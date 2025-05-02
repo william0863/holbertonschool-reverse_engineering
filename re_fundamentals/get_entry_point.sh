@@ -23,9 +23,9 @@ if ! readelf -h "$file_name" &> /dev/null; then
 fi
 
 # Extract information
-magic_number=$(xxd -p -l 4 "$file_name" | sed 's/../& /g' | tr '[:lower:]' '[:upper:]')
-class=$(readelf -h "$file_name" | grep "Class:" | awk '{$1=""; print $0}' | xargs)
-byte_order=$(readelf -h "$file_name" | grep "Data:" | awk '{$1=""; print $0}' | xargs)
+magic_number=$(hexdump -n 16 -e '16/1 "%02x "' "$file_name" | sed 's/ $//')
+class=$(readelf -h "$file_name" | grep "Class:" | awk '{print $2}' | tr -d ' ')
+byte_order=$(readelf -h "$file_name" | grep "Data:" | awk '{print $(NF-1), $NF}' | sed 's/,//g' | tr -s ' ')
 entry_point_address=$(readelf -h "$file_name" | grep "Entry point address:" | awk '{print $4}')
 
 # Display using function
